@@ -1,0 +1,33 @@
+[project]
+name = "hotel-reservation-api"
+version = "1.0.0"
+description = "Hotel Reservation System - FastAPI Backend"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.136.1",
+    "uvicorn[standard]>=0.46.0",
+    "sqlalchemy[asyncio]>=2.0.49",
+    "aiomysql>=0.2.0",
+    "alembic>=1.13.1",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.7.0",
+    "python-jose[cryptography]>=3.5.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.20",
+    "aiofiles>=24.1.0",
+    "fastapi-mail>=1.4.1",
+    "slowapi>=0.1.9",
+    "pillow>=11.0.0",
+    "python-dotenv>=1.0.1",
+]
+
+[project.scripts]
+start = "backend.main:start"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

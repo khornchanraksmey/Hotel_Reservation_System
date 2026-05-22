@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-[#fafaf8] text-gray-800 font-sans;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gold text-white font-semibold px-6 py-3 rounded-lg hover:bg-gold-600 transition-colors duration-200;
+  }
+  .btn-secondary {
+    @apply border border-navy text-navy font-semibold px-6 py-3 rounded-lg hover:bg-navy hover:text-white transition-colors duration-200;
+  }
+  .card {
+    @apply bg-white rounded-xl shadow-md overflow-hidden;
+  }
+}
+
+/* ── react-day-picker v9 overrides (Tailwind reset protection) ─────────── */
+.rdp-root {
+  --rdp-accent-color: #1e3a5f;
+  --rdp-accent-background-color: #1e3a5f;
+  font-size: 0.875rem;
+  padding: 12px;
+}
+.rdp-month_caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e3a5f;
+  margin-bottom: 8px;
+}
+.rdp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+.rdp-weekday {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+.rdp-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.rdp-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #374151;
+  margin: 1px auto;
+  transition: background 0.15s;
+}
+.rdp-day:hover:not(.rdp-day_disabled):not(.rdp-selected) {
+  background-color: #c9a84c20;
+  color: #1e3a5f;
+}
+.rdp-selected .rdp-day_button, .rdp-day.rdp-selected {
+  background-color: #1e3a5f !important;
+  color: white !important;
+  border-radius: 50%;
+}
+.rdp-today:not(.rdp-selected) {
+  font-weight: 700;
+  color: #c9a84c;
+}
+.rdp-day_disabled, .rdp-day_disabled .rdp-day_button {
+  color: #d1d5db !important;
+  cursor: not-allowed;
+}
+.rdp-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.rdp-nav button {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #1e3a5f;
+  font-size: 1rem;
+  line-height: 1;
+}
+.rdp-nav button:hover {
+  background: #f3f4f6;
+}
+.rdp-month_grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rdp-day_button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+}
