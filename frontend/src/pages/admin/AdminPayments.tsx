@@ -109,7 +109,7 @@ export default function AdminPayments() {
       render: (p: Payment) => (
         <div className="flex gap-1.5">
           {p.slip_image && (
-            <button onClick={() => setViewSlip(p.slip_image!)} className="p-1.5 text-navy hover:text-gold" title="View Slip">
+            <button onClick={() => setViewSlip(getImageUrl(p.slip_image))} className="p-1.5 text-navy hover:text-gold" title="View Slip">
               <Eye className="h-4 w-4" />
             </button>
           )}
