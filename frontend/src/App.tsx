@@ -8,6 +8,8 @@ import { AdminLayout } from './components/layout/AdminLayout';
 import Home from './pages/public/Home';
 import Rooms from './pages/public/Rooms';
 import RoomDetail from './pages/public/RoomDetail';
+import AboutUs from './pages/public/AboutUs';
+import Contact from './pages/public/Contact';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
@@ -48,6 +50,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/rooms" element={<Rooms />} />
           <Route path="/rooms/:id" element={<RoomDetail />} />
+          <Route path="/about" element={<AboutUs />} />    {/* ADD THIS */}
+          <Route path="/contact" element={<Contact />} />  {/* ADD THIS */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

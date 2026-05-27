@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -6,7 +5,6 @@ import { Users, BedDouble, Maximize2, Star, ChevronDown, MessageSquare, Calendar
 import { DayPicker } from 'react-day-picker';
 import { format } from 'date-fns';
 import { roomService } from '../../services/roomService';
-import { RoomGallery } from '../../components/rooms/RoomGallery';
 import { AmenityBadge } from '../../components/rooms/AmenityBadge';
 import { AvailabilityCalendar } from '../../components/rooms/AvailabilityCalendar';
 import { PriceBreakdown } from '../../components/booking/PriceBreakdown';
@@ -29,6 +27,162 @@ const MOCK_REVIEWS = [
   { id: 2, name: 'James T.', rating: 4, date: 'March 2026', comment: 'Very comfortable and clean. The amenities were top-notch. Would definitely stay again on my next visit.' },
   { id: 3, name: 'Lily C.', rating: 5, date: 'February 2026', comment: 'Perfect in every way. The room was spacious, the bed was divine, and the view was spectacular.' },
 ];
+
+const STOCK_GALLERY: Record<string, { url: string; label: string }[]> = {
+  Standard: [
+    { url: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1200&q=85', label: 'Room View' },
+    { url: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1200&q=85', label: 'Bedroom' },
+    { url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1200&q=85', label: 'Bathroom' },
+    { url: 'https://images.unsplash.com/photo-1688933758128-83d40ab10b4e?w=1200&q=85', label: 'City View' },
+  ],
+  Deluxe: [
+    { url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=85', label: 'Room View' },
+    { url: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=85', label: 'Bedroom' },
+    { url: 'https://images.unsplash.com/photo-1646974400439-8472d58bb19e?w=1200&q=85', label: 'Bathroom' },
+    { url: 'https://images.unsplash.com/photo-1758635654796-87a0f2863126?w=1200&q=85', label: 'Window View' },
+    { url: 'https://plus.unsplash.com/premium_photo-1733306418494-4c0fdc5c3d6f?w=1200&q=85', label: 'City View' },
+  ],
+  Family: [
+    { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85', label: 'Room View' },
+    { url: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=85', label: 'Bedroom' },
+    { url: 'https://plus.unsplash.com/premium_photo-1661963630748-3de7ab820570?w=1200&q=85', label: 'Bathroom' },
+    { url: 'https://images.unsplash.com/photo-1758635654796-87a0f2863126?w=1200&q=85', label: 'Window View' },
+    { url: 'https://plus.unsplash.com/premium_photo-1733306418494-4c0fdc5c3d6f?w=1200&q=85', label: 'City View' },
+  ],
+  Suite: [
+    { url: 'https://images.unsplash.com/photo-CvxbrPamJUk?w=1200&q=85', label: 'Living Area' },
+    { url: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1200&q=85', label: 'Bedroom' },
+    { url: 'https://images.unsplash.com/photo-lC0SPakhZwM?w=1200&q=85', label: 'Bathroom' },
+    { url: 'https://images.unsplash.com/photo-L6LSzjhWI0Y?w=1200&q=85', label: 'Bathtub' },
+    { url: 'https://images.unsplash.com/photo-T66U5HVG81U?w=1200&q=85', label: 'Panoramic View' },
+    { url: 'https://images.unsplash.com/photo-wBGtUYlPv4g?w=1200&q=85', label: 'City View' },
+  ],
+  Penthouse: [
+    { url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85', label: 'Room View' },
+    { url: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=85', label: 'Bedroom' },
+    { url: 'https://plus.unsplash.com/premium_photo-1661963630748-3de7ab820570?w=1200&q=85', label: 'Bathroom' },
+    { url: 'https://images.unsplash.com/photo-1758635654796-87a0f2863126?w=1200&q=85', label: 'Window View' },
+    { url: 'https://plus.unsplash.com/premium_photo-1733306418494-4c0fdc5c3d6f?w=1200&q=85', label: 'City View' },
+  ],
+};
+function getStockGallery(roomTypeName?: string) {
+  if (!roomTypeName) return STOCK_GALLERY.default;
+  const key = Object.keys(STOCK_GALLERY).find(k =>
+    k !== 'default' && roomTypeName.toLowerCase().includes(k.toLowerCase())
+  );
+  return key ? STOCK_GALLERY[key] : STOCK_GALLERY.default;
+}
+
+// Guest-facing image gallery with label tabs
+function RoomImageGallery({ images, roomTypeName }: { images: string[]; roomTypeName?: string }) {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [lightbox, setLightbox] = useState(false);
+  const getImageUrl = (url: string) => { if (!url) return ''; if (url.startsWith('http')) return url; const base = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1').replace('/api/v1', ''); return `${base}${url}`; };
+
+  // Use real images if available, otherwise stock
+  const gallery = images.length > 0
+    ? images.map((url, i) => ({ url: getImageUrl(url), label: i === 0 ? 'Room View' : `Photo ${i + 1}` }))
+    : getStockGallery(roomTypeName);
+
+  const isStock = images.length === 0;
+
+  return (
+    <div className="space-y-3">
+      {/* Main Image */}
+      <div
+        className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden cursor-zoom-in group"
+        onClick={() => setLightbox(true)}
+      >
+        <img
+          src={gallery[activeIdx].url}
+          alt={gallery[activeIdx].label}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        {/* Label */}
+        <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full">
+          {gallery[activeIdx].label}
+        </div>
+        {/* Stock badge */}
+        {isStock && (
+          <div className="absolute top-4 right-4 bg-black/40 text-white text-xs px-2 py-1 rounded-full">
+            Sample Photos
+          </div>
+        )}
+        {/* Photo count */}
+        <div className="absolute top-4 left-4 bg-black/40 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+          🖼 {gallery.length} photos
+        </div>
+        {/* Arrow hints */}
+        {gallery.length > 1 && (
+          <>
+            <button
+              onClick={e => { e.stopPropagation(); setActiveIdx(i => (i - 1 + gallery.length) % gallery.length); }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button
+              onClick={e => { e.stopPropagation(); setActiveIdx(i => (i + 1) % gallery.length); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnail Strip */}
+      <div className="grid grid-cols-4 gap-2">
+        {gallery.slice(0, 4).map((img, i) => (
+          <button
+            key={i}
+            onClick={() => setActiveIdx(i)}
+            className={`relative aspect-video rounded-xl overflow-hidden border-2 transition-all ${activeIdx === i ? 'border-gold scale-[1.02] shadow-md' : 'border-transparent opacity-70 hover:opacity-100'}`}
+          >
+            <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
+            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] text-center py-0.5 truncate px-1">
+              {img.label}
+            </div>
+            {i === 3 && gallery.length > 4 && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">+{gallery.length - 4}</span>
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center" onClick={() => setLightbox(false)}>
+          <button onClick={() => setLightbox(false)} className="absolute top-4 right-4 text-white/70 hover:text-white z-10">
+            <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+          <button onClick={e => { e.stopPropagation(); setActiveIdx(i => (i - 1 + gallery.length) % gallery.length); }}
+            className="absolute left-4 bg-black/40 hover:bg-black/70 text-white rounded-full p-3 z-10">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <div className="flex flex-col items-center gap-4 max-w-5xl w-full px-16" onClick={e => e.stopPropagation()}>
+            <img src={gallery[activeIdx].url} alt={gallery[activeIdx].label} className="max-h-[75vh] w-full object-contain rounded-xl" />
+            <p className="text-white/80 text-sm">{gallery[activeIdx].label} · {activeIdx + 1} / {gallery.length}</p>
+            <div className="flex gap-2 overflow-x-auto max-w-full pb-1">
+              {gallery.map((img, i) => (
+                <button key={i} onClick={() => setActiveIdx(i)}
+                  className={`flex-shrink-0 w-16 h-10 rounded-lg overflow-hidden border-2 transition-all ${i === activeIdx ? 'border-yellow-400' : 'border-transparent opacity-50 hover:opacity-80'}`}>
+                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={e => { e.stopPropagation(); setActiveIdx(i => (i + 1) % gallery.length); }}
+            className="absolute right-4 bg-black/40 hover:bg-black/70 text-white rounded-full p-3 z-10">
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -274,7 +428,7 @@ export default function RoomDetail() {
       <div className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Gallery */}
         <div className="mb-6">
-          <RoomGallery images={room.images} alt={`Room ${room.room_number}`} />
+          <RoomImageGallery images={room.images || []} roomTypeName={room.room_type?.name} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
