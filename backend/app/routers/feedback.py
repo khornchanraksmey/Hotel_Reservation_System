@@ -34,3 +34,4 @@ async def create_feedback(data: FeedbackCreate, current_user: User = Depends(get
     await db.flush()
     await db.refresh(fb)
     return fb
+
