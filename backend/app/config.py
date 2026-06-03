@@ -34,7 +34,13 @@ class Settings(BaseSettings):
     # Tax
     TAX_RATE: float = 0.12
 
+    # Telegram Bot
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_ADMIN_CHAT_ID: str = ""   # your Telegram numeric chat ID
+    BACKEND_URL: str = "http://localhost:8000"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
 
 
 @lru_cache()
@@ -43,3 +49,5 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+
+

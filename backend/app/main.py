@@ -6,6 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
+
 from app.config import settings
 
 # Public routers
@@ -20,6 +21,7 @@ from app.routers.promotions import router as promotions_router
 from app.routers.feedback import router as feedback_router
 from app.routers.upload import router as upload_router
 from app.routers.settings import router as settings_router
+from app.routers.telegram_webhook import router as telegram_router
 
 # Admin routers
 from app.admin.dashboard import router as admin_dashboard_router
@@ -70,6 +72,7 @@ def create_app() -> FastAPI:
         admin_amenities_router, admin_reservations_router, admin_guests_router,
         admin_staff_router, admin_payments_router, admin_promotions_router,
         admin_feedback_router, admin_reports_router, admin_settings_router,
+        telegram_router,
     ]:
         app.include_router(router, prefix=prefix)
 
@@ -77,6 +80,25 @@ def create_app() -> FastAPI:
     async def startup():
         from app.database import create_tables
         await create_tables()
+
+        # Auto-register Telegram webhook so bot receives button callbacks
+        if settings.TELEGRAM_BOT_TOKEN and settings.BACKEND_URL:
+            import httpx
+            webhook_url = f"{settings.BACKEND_URL.rstrip('/')}/api/v1/telegram/webhook"
+            try:
+                async with httpx.AsyncClient() as client:
+                    resp = await client.post(
+                        f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/setWebhook",
+                        json={"url": webhook_url},
+                        timeout=10,
+                    )
+                    result = resp.json()
+                    if result.get("ok"):
+                        print(f"[Telegram] Webhook registered: {webhook_url}")
+                    else:
+                        print(f"[Telegram] Webhook registration failed: {result}")
+            except Exception as e:
+                print(f"[Telegram] Could not register webhook: {e}")
         
     @app.get("/api/health", tags=["Health"])
     async def health():

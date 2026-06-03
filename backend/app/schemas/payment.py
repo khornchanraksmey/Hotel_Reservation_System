@@ -46,3 +46,12 @@ class PaymentResponse(BaseModel):
                 if self.notes.startswith("/uploads/"):
                     self.slip_image = self.notes
         return self
+
+
+class PaymentWithBookingResponse(PaymentResponse):
+    """Extended payment response with reservation details for the guest payment history page."""
+    booking_reference: Optional[str] = None
+    check_in_date: Optional[datetime] = None
+    check_out_date: Optional[datetime] = None
+    room_number: Optional[str] = None
+    room_type_name: Optional[str] = None

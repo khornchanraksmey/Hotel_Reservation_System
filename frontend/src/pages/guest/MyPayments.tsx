@@ -16,6 +16,7 @@ export default function MyPayments() {
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ['my-payments'],
     queryFn: paymentService.getMyPayments,
+    refetchInterval: 10000,
   });
 
   return (

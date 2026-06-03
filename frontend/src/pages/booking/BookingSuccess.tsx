@@ -39,7 +39,11 @@ export default function BookingSuccess() {
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto" />
           </div>
 
-          <h1 className="font-serif text-3xl text-navy mb-3">Payment Slip Submitted!</h1>
+          <p className="text-gray-500 mb-6">
+            Your payment slip has been submitted and is now being reviewed.
+            You will be notified once admin approves or rejects your payment.
+            Please check <b>My Payments</b> for the latest status.
+          </p>
           <p className="text-gray-500 mb-6">
             Your payment slip has been submitted. We will confirm your booking within 24 hours.
             You'll receive a confirmation email once verified.
