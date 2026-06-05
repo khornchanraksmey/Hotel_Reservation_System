@@ -103,16 +103,17 @@ export interface Promotion {
   is_active: boolean;
 }
 
+// Fixed (CORRECT) ✅
 export interface Staff {
   id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number?: string;
-  role: string;
-  status: 'active' | 'inactive';
-  hire_date: string;
+  user_id: number;
+  department: string;
+  position: string;
+  salary?: number;
+  hire_date?: string;
+  is_active: boolean;
   created_at: string;
+  user?: User; // ← this gives us first_name, last_name, email
 }
 
 export interface Feedback {
